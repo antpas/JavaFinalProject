@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -32,17 +33,20 @@ public class MyGdxGame extends ApplicationAdapter {
 	int score;
 	private String yourScoreName;
 	BitmapFont yourBitmapFontName;
+	
 	private boolean personheld;
-	private char state;
-
-
+	private int state = 1;
+	static int MENU_STATE = 0;
+	static int GAME_STATE = 1;
+	static int END_STATE = 2;
+	
 	private void spawnRocks()
 	{
 		Rectangle rock = new Rectangle();
-		rock.x = MathUtils.random(0, Gdx.graphics.getWidth() -64); //Random between 0 and right hand side
-		rock.y = Gdx.graphics.getHeight();
 		rock.width = rockpicture.getWidth();
 		rock.height = rockpicture.getHeight();
+		rock.x = MathUtils.random(0, Gdx.graphics.getWidth() - rock.width); //Random between 0 and right hand side
+		rock.y = Gdx.graphics.getHeight();
 		rocksarray.add(rock); //Add rock to rock array
 		lastRockTime = TimeUtils.nanoTime();
 	}
@@ -50,6 +54,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	@Override
 	public void create () //Load sprites
 	{
+		
 		//Sprites here
 		rockpicture  = new Texture(Gdx.files.internal("Rock.png"));
 		skierpicture = new Texture(Gdx.files.internal("Skier.png"));
@@ -62,9 +67,10 @@ public class MyGdxGame extends ApplicationAdapter {
 		
 		//Instatiate skier 'rectangle'
 		skier = new Rectangle();
-		skier.width = skierpicture.getWidth();
-		skier.height = skierpicture.getHeight();
+		skier.width = (int) (Gdx.graphics.getWidth() * 180 /480.0);
+		skier.height = Gdx.graphics.getHeight() * 165 /800;
 		skier.x = Gdx.graphics.getWidth()/2 - skier.width / 2;
+		skier.y = 0;
 		
 		
 		//Instatiate rocks
@@ -76,8 +82,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		yourScoreName = "Score: 0";
 		yourBitmapFontName = new BitmapFont();
 		
-		//Starting state
-		state = 'g';
 	} 
 	
 	public void update()
@@ -92,53 +96,20 @@ public class MyGdxGame extends ApplicationAdapter {
 	         camera.unproject(touchPos);
 	         if(!personheld && skier.contains(touchPos.x, touchPos.y)) //If rectangle for person contains finger touch, the person is held
 		         personheld = true;
-	
-	         else
-	        	 personheld = false;
 	        	 
-	         
 	         if(personheld)
-	        	 skier.x = touchPos.x - skier.width / 2; //Adding on change in mouse position
-	     
+	        	 skier.x = touchPos.x - skier.width /2; //Adding on change in mouse position
 	     }
 	     else
 	      personheld = false;
-   
-	}
-	
-	@Override
-	 public void render() 
-	 {
-		  update();
-		  Gdx.gl.glClearColor(1, 1, 1, 1); //Background color
-	      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); 
-	      
-	      //Text Score
-		  yourBitmapFontName = new BitmapFont();
-	      batch.begin(); 
-	      yourBitmapFontName.setColor(1.0f, 0, 0, 1.0f);
-	      yourBitmapFontName.draw(batch, yourScoreName, 25, 100); 
-	      batch.end();
-	      
-	      //Render skier
-	      batch.setProjectionMatrix(camera.combined);
-	      batch.begin();
-	      batch.draw(skierpicture, skier.x, skier.y, Gdx.graphics.getWidth() * 180 /480, Gdx.graphics.getHeight() * 165 /800);
-	      batch.end();
-	      
-	      //Render rocks
-	      batch.begin();
-	      
-	      for(Rectangle rock: rocksarray) {
-		      batch.draw(rockpicture, rock.x, rock.y, Gdx.graphics.getWidth() * 120 /480, Gdx.graphics.getHeight() * 105 /800);
-	      }
-	      batch.end();
 	     
-	      //Stay within bounds
-	      if(skier.x < 0) skier.x = 0;
-	      if(skier.x > Gdx.graphics.getHeight() - 64) skier.x = Gdx.graphics.getHeight() - 64;
-	      
-	      //Creates new rock after a certain amount of time
+	     if(skier.x < 0) //Doesn't let person go left past bound
+	    	 skier.x = 0;
+	     
+	     if(skier.x + skier.getWidth() > Gdx.graphics.getWidth()) //Doesn't let person go right past bound
+	    	 skier.x = Gdx.graphics.getWidth() - skier.getWidth();
+	     
+	     //Creates new rock after a certain amount of time
 	      if(score < 10)
 	      {
 		      if(TimeUtils.nanoTime() - lastRockTime > 500000000)
@@ -167,9 +138,21 @@ public class MyGdxGame extends ApplicationAdapter {
 		      if(TimeUtils.nanoTime() - lastRockTime > 300000000)
 		    	  spawnRocks();
 	      }
+	      
+	      else if(score >= 90 && score < 110)
+	      {
+		      if(TimeUtils.nanoTime() - lastRockTime > 200050000)
+		    	  spawnRocks();
+	      }
+	      
+	      else if(score >= 110 && score < 130)
+	      {
+		      if(TimeUtils.nanoTime() - lastRockTime > 200000000)
+		    	  spawnRocks();
+	      }
 	      else 
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 300050000)
+		      if(TimeUtils.nanoTime() - lastRockTime > 100000000)
 		    	  spawnRocks();
 	      }
 	      
@@ -178,21 +161,19 @@ public class MyGdxGame extends ApplicationAdapter {
 	      Iterator<Rectangle> iter = rocksarray.iterator();
 	      while(iter.hasNext())
 	      {
-	    	
 	    	 Rectangle rock = iter.next();
 	    	 
-	    	 //Remove rocks that fall below screen
-	    	 if(rock.y < -70) 
-			    	iter.remove();
-	    	 
+	    	 if(rock.y +64 < 0) //When it leaves screen remove rock
+			   	{
+			   		 iter.remove();  
+			   		 state = END_STATE;
+			   	}
+			   	
 	    	//These if else statements change speed of rocks as your score goes up
 	    	if(score < 10)
 	    	{
 		    	
 		    	rock.y = rock.y - (400* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
-		    	if(rock.y +64 < 0) //When it leaves screen remove rock
-		    		 iter.remove();  
-		    	
 		    	if(rock.overlaps(skier)) 
 		    	{
 		    		iter.remove();
@@ -205,9 +186,6 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	{
 		    	
 		    	rock.y = rock.y - (600* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
-		    	if(rock.y +64 < 0) //When it leaves screen remove rock
-		    		 iter.remove();  
-		    	
 		    	if(rock.overlaps(skier)) 
 		    	{
 		    		iter.remove();
@@ -220,9 +198,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		    {
 			    
 			   	rock.y = rock.y - (800* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
-			   	if(rock.y +64 < 0) //When it leaves screen remove rock
-			   		 iter.remove();  
-			   	
+
 		    	if(rock.overlaps(skier)) 
 		    	{
 		    		iter.remove();
@@ -235,8 +211,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		    {
 			   
 			   	rock.y = rock.y - (900* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
-			   	if(rock.y +64 < 0) //When it leaves screen remove rock
-			   		 iter.remove();  
 			   	
 		    	if(rock.overlaps(skier)) 
 		    	{
@@ -248,9 +222,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	
 	    	else 
 		    {
-			   	rock.y = rock.y - (1000* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
-			   	if(rock.y +64 < 0) //When it leaves screen remove rock
-			   		 iter.remove();  
+			   	rock.y = rock.y - (1000* Gdx.graphics.getDeltaTime()); //Move 1000 pixels/unit
 			   	
 		    	if(rock.overlaps(skier)) 
 		    	{
@@ -262,8 +234,54 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	
 	    
 	      }
-		 
-	      
+	
+	}
+	
+	public void updatestop()
+	{
+		camera.update(); //Update camera once per frame
+		
+		
+	}
+	
+	@Override
+	 public void render() 
+	 {
+		  if(state == GAME_STATE)
+		  {
+			  update();
+			  Gdx.gl.glClearColor(1, 1, 1, 1); //Background color
+		      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); 
+		      //Text Score
+		      String s = "frames: " + Gdx.graphics.getFramesPerSecond();
+		      batch.begin(); 
+		      yourBitmapFontName.setColor(1.0f, 0, 0, 1.0f);
+		      yourBitmapFontName.draw(batch, yourScoreName, 25, 100); 
+		      yourBitmapFontName.draw(batch, s, 25, 200); 
+		      
+		      batch.end();
+		      
+		      //Render skier
+		      batch.setProjectionMatrix(camera.combined);
+		      batch.begin();
+		      batch.draw(skierpicture, skier.x, skier.y, Gdx.graphics.getWidth() * 180 /480, Gdx.graphics.getHeight() * 165 /800);
+		      batch.end();
+		      
+		      //Render rocks
+		      batch.begin();
+		      
+		      for(Rectangle rock: rocksarray) {
+			      batch.draw(rockpicture, rock.x, rock.y, Gdx.graphics.getWidth() * 120 /480, Gdx.graphics.getHeight() * 105 /800);
+		      }
+		      batch.end();
+		  }
+		  
+		  else if(state == END_STATE)
+		  {
+			  updatestop();
+		  }
+	     
+
 	 }
 	
 	 @Override
