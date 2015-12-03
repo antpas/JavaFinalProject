@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -56,8 +58,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	{
 		
 		//Sprites here
-		rockpicture  = new Texture(Gdx.files.internal("Rock.png"));
-		skierpicture = new Texture(Gdx.files.internal("Skier.png"));
+		rockpicture  = new Texture(Gdx.files.internal("candy.png"));
+		skierpicture = new Texture(Gdx.files.internal("hippo.png"));
 		
 		
 		//Camera stuff here
@@ -67,8 +69,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		
 		//Instatiate skier 'rectangle'
 		skier = new Rectangle();
-		skier.width = (int) (Gdx.graphics.getWidth() * 180 /480.0);
-		skier.height = Gdx.graphics.getHeight() * 165 /800;
+		skier.width = (int) (Gdx.graphics.getWidth() * 187 /480.0);
+		skier.height = Gdx.graphics.getHeight() * 200 /800;
 		skier.x = Gdx.graphics.getWidth()/2 - skier.width / 2;
 		skier.y = 0;
 		
@@ -237,21 +239,21 @@ public class MyGdxGame extends ApplicationAdapter {
 	
 	}
 	
-	public void updatestop()
-	{
-		camera.update(); //Update camera once per frame
-		
-		
-	}
-	
 	@Override
 	 public void render() 
 	 {
-		  if(state == GAME_STATE)
+		  Gdx.gl.glClearColor(1, 1, 1, 1);
+		  Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); 
+		  
+		  if (state == MENU_STATE)
+		  {
+			  
+		  }
+		  
+		  else if(state == GAME_STATE)
 		  {
 			  update();
-			  Gdx.gl.glClearColor(1, 1, 1, 1); //Background color
-		      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); 
+
 		      //Text Score
 		      String s = "frames: " + Gdx.graphics.getFramesPerSecond();
 		      batch.begin(); 
@@ -264,21 +266,26 @@ public class MyGdxGame extends ApplicationAdapter {
 		      //Render skier
 		      batch.setProjectionMatrix(camera.combined);
 		      batch.begin();
-		      batch.draw(skierpicture, skier.x, skier.y, Gdx.graphics.getWidth() * 180 /480, Gdx.graphics.getHeight() * 165 /800);
+		      batch.draw(skierpicture, skier.x, skier.y, Gdx.graphics.getWidth() * skierpicture.getWidth() /480, Gdx.graphics.getHeight() * skierpicture.getHeight() /800);
 		      batch.end();
 		      
 		      //Render rocks
 		      batch.begin();
 		      
 		      for(Rectangle rock: rocksarray) {
-			      batch.draw(rockpicture, rock.x, rock.y, Gdx.graphics.getWidth() * 120 /480, Gdx.graphics.getHeight() * 105 /800);
+			      batch.draw(rockpicture, rock.x, rock.y, Gdx.graphics.getWidth() * rockpicture.getWidth() /480, Gdx.graphics.getHeight() * rockpicture.getHeight() /800);
 		      }
 		      batch.end();
 		  }
 		  
 		  else if(state == END_STATE)
 		  {
-			  updatestop();
+			  /*Skin uiSkin = new Skin(Gdx.files.internal("uiskin.json"));
+			  TextButton startgame = new TextButton("Start Game",uiSkin);
+			  startgame.setPosition(300, 300);
+			  startgame.setSize(300, 60);
+			  score = 0;*/
+			  
 		  }
 	     
 
