@@ -35,6 +35,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Array<Rectangle> bombsarray;
 	private long lastcandyTime;
 	private long lastBombTime;
+	public double get_candyx;
 	int score;
 	private String yourScoreName;
 	BitmapFont yourBitmapFontName;
@@ -52,6 +53,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		candy.height = candypicture.getHeight();
 		candy.x = MathUtils.random(0, Gdx.graphics.getWidth() - candy.width); //Random between 0 and right hand side
 		candy.y = Gdx.graphics.getHeight();
+		get_candyx = candy.x; //getter for spawnBombs method
 		candyarray.add(candy); //Add candy to candy array
 		lastcandyTime = TimeUtils.nanoTime();
 	}
@@ -63,7 +65,10 @@ public class MyGdxGame extends ApplicationAdapter {
 		bomb.height = bombpicture.getHeight();
 		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width); //Random between 0 and right hand side
 		bomb.y = Gdx.graphics.getHeight();
-		bombsarray.add(bomb); //Add bomb to bomb array
+		
+		if(Math.abs(get_candyx - bomb.x) > 150) //Only spawn bomb if not near candy
+			bombsarray.add(bomb); //Add bomb to bomb array
+		
 		lastBombTime = TimeUtils.nanoTime();
 	}
 	
@@ -136,49 +141,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	     //Creates new candy after a certain amount of time
 		  if(TimeUtils.nanoTime() - lastcandyTime > 500000000)
 			  spawnCandy();
-	      
-	      /*
-	      else if(score >= 10 && score < 30)
-	      {
-		      if(TimeUtils.nanoTime() - lastcandyTime > 400050000)
-		    	  spawnCandy();
-	      }
-	      
-	      else if(score >= 30 && score < 50)
-	      {
-		      if(TimeUtils.nanoTime() - lastcandyTime > 400000000)
-		    	  spawnCandy();
-	      }
-	      
-	      else if(score >= 50 && score < 70)
-	      {
-		      if(TimeUtils.nanoTime() - lastcandyTime > 400000000)
-		    	  spawnCandy();
-	      }
-	      
-	      else if(score >= 70 && score < 90)
-	      {
-		      if(TimeUtils.nanoTime() - lastcandyTime > 300000000)
-		    	  spawnCandy();
-	      }
-	      
-	      else if(score >= 90 && score < 110)
-	      {
-		      if(TimeUtils.nanoTime() - lastcandyTime > 200050000)
-		    	  spawnCandy();
-	      }
-	      
-	      else if(score >= 110 && score < 130)
-	      {
-		      if(TimeUtils.nanoTime() - lastcandyTime > 200000000)
-		    	  spawnCandy();
-	      }
-	      else 
-	      {
-		      if(TimeUtils.nanoTime() - lastcandyTime > 100000000)
-		    	  spawnCandy();
-	      }
-	      */
+
+		  
 	      //Iterate through bomb array
 	      Iterator<Rectangle> iterbomb = bombsarray.iterator();
 	      while(iterbomb.hasNext())
@@ -197,84 +161,31 @@ public class MyGdxGame extends ApplicationAdapter {
 		   		 state = END_STATE;
 	    	 }
 			   	
-	    	bomb.y = bomb.y - (700* Gdx.graphics.getDeltaTime()); //Move 700 pixels/unit
+	    	 bomb.y = (float) (bomb.y - ((750 + 2.8*(score +1) ) * Gdx.graphics.getDeltaTime())); //Move n pixels/unit (changes based on score to make it harder:) )
 		  
 	      }
 	      
 		  //Iterate through candy array
 	      Iterator<Rectangle> iter = candyarray.iterator();
 	      while(iter.hasNext())
-	      {
-	    	 Rectangle candy = iter.next();
+	      {		
+	    	  Rectangle candy = iter.next();
 	    	 
-	    	 if(candy.y +64 < 0) //When it leaves screen remove candy
-			   	{
-			   		 iter.remove();  
-			   		 state = END_STATE;
-			   	}
-			   	
-	    	//These if else statements change speed of candy as your score goes up
-	    	 
-	    	 candy.y = candy.y - (700* Gdx.graphics.getDeltaTime()); //Move 700 pixels/unit
-	    	 if(candy.overlaps(hippo)) 
-		     {
-		    	iter.remove();
-		    	score++;
-		    	yourScoreName = "Score: " + score; 
-	    	 }
-	      
-	    	/*
-	    	else if(score >= 10 && score < 30)
-	    	{
-		    	
-		    	candy.y = candy.y - (600* Gdx.graphics.getDeltaTime()); 
-		    	if(candy.overlaps(hippo)) 
-		    	{
-		    		iter.remove();
-		    		score++;
-		    		yourScoreName = "Score: " + score;  
-		    	}
-	    	}
-	    	
-	    	else if(score >= 30 && score < 50)
-		    {
-			    
-			   	candy.y = candy.y - (800* Gdx.graphics.getDeltaTime()); 
-
-		    	if(candy.overlaps(hippo)) 
-		    	{
-		    		iter.remove();
+	    	  if(candy.y +64 < 0) //When it leaves screen remove candy
+			  {
+			   		iter.remove();  
+			   		state = END_STATE;
+			  }
+	    	  
+	    	  candy.y = (float) (candy.y - ((750 + 2.8*(score +1) ) * Gdx.graphics.getDeltaTime())); //Move n pixels/unit (changes based on score to make it harder:) )
+	    	  
+	    	  //When candy hits hippo get rid of it and add score
+	    	  if(candy.overlaps(hippo)) 
+			     {
+			    	iter.remove();
 			    	score++;
-			    	yourScoreName = "Score: " + score;
-			   	}
-		    }
-	    	
-	    	else if(score >= 50 && score < 70)
-		    {
-			   
-			   	candy.y = candy.y - (900* Gdx.graphics.getDeltaTime()); 
-			   	
-		    	if(candy.overlaps(hippo)) 
-		    	{
-		    		iter.remove();
-			    	score++;
-			    	yourScoreName = "Score: " + score;  
-			   	}
-		    }
-	    	
-	    	else 
-		    {
-			   	candy.y = candy.y - (1000* Gdx.graphics.getDeltaTime()); //Move 1000 pixels/unit
-			   	
-		    	if(candy.overlaps(hippo)) 
-		    	{
-		    		iter.remove();
-			    	score++;
-			    	yourScoreName = "Score: " + score;
-			   	}
-		    }
-	    	*/
-	    
+			    	yourScoreName = "Score: " + score; 
+		    	 }
 	      }
 	
 	}
@@ -326,12 +237,16 @@ public class MyGdxGame extends ApplicationAdapter {
 		  
 		  else if(state == END_STATE)
 		  {
+			  score = 0;
+			  yourScoreName = "Score: " + score; 
+			  state = GAME_STATE;
+			  
+			  
 			  /*Skin uiSkin = new Skin(Gdx.files.internal("uiskin.json"));
 			  TextButton startgame = new TextButton("Start Game",uiSkin);
 			  startgame.setPosition(300, 300);
 			  startgame.setSize(300, 60);
 			  score = 0;*/
-			  
 		  }
 	     
 
