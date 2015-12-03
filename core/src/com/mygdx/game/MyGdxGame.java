@@ -52,7 +52,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		Rectangle candy = new Rectangle();
 		candy.width = candypicture.getWidth();
 		candy.height = candypicture.getHeight();
-		candy.x = MathUtils.random(0, Gdx.graphics.getWidth() - candy.width); //Random between 0 and right hand side
+		candy.x = MathUtils.random(0, Gdx.graphics.getWidth() - candy.width) % Gdx.graphics.getWidth(); //Random between 0 and right hand side
 		candy.y = Gdx.graphics.getHeight();
 		get_candyx = candy.x; //getter for spawnBombs method
 		get_candyy = candy.y; //getter for spawnBombs method
@@ -64,7 +64,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	{
 		Rectangle bomb = new Rectangle();
 		bomb.width = bombpicture.getWidth();
-		bomb.height = bombpicture.getHeight();
+		bomb.height = bombpicture.getHeight() % Gdx.graphics.getWidth();
 		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width); //Random between 0 and right hand side
 		bomb.y = Gdx.graphics.getHeight();
 		lastBombTime = TimeUtils.nanoTime();
@@ -109,7 +109,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		score = 0;
 		yourScoreName = "Score: 0";
 		yourBitmapFontName = new BitmapFont();
-		
+		yourBitmapFontName.getData().scale(2);
+	
 	} 
 	
 	public void update()
@@ -211,7 +212,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		      //Text Score
 		      batch.begin(); 
 		      yourBitmapFontName.setColor(1.0f, 0, 0, 1.0f);
-		      yourBitmapFontName.draw(batch, yourScoreName, 25, 100); 
+		      yourBitmapFontName.draw(batch, yourScoreName, (float)(Gdx.graphics.getWidth() * .05), (float)(Gdx.graphics.getHeight() * .98)); 
 		      batch.end();
 		      
 		      //Render hippo
@@ -258,6 +259,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	      hippopicture.dispose();
 	      candypicture.dispose();
 	      bombpicture.dispose();
+	      yourBitmapFontName.dispose();
 	      batch.dispose();
 	   }
 
