@@ -65,11 +65,12 @@ public class MyGdxGame extends ApplicationAdapter {
 		bomb.height = bombpicture.getHeight();
 		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width); //Random between 0 and right hand side
 		bomb.y = Gdx.graphics.getHeight();
+		lastBombTime = TimeUtils.nanoTime();
 		
-		if(Math.abs(get_candyx - bomb.x) > 150) //Only spawn bomb if not near candy
+		if(Math.abs(get_candyx - bomb.x) > 150 && lastBombTime > 1000) //Only spawn bomb if not near candy
 			bombsarray.add(bomb); //Add bomb to bomb array
 		
-		lastBombTime = TimeUtils.nanoTime();
+		
 	}
 	
 	@Override
@@ -139,7 +140,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	  spawnBombs();
 	     
 	     //Creates new candy after a certain amount of time
-		  if(TimeUtils.nanoTime() - lastcandyTime > 500000000)
+		  if(TimeUtils.nanoTime() - lastcandyTime > (500000000 - (score * 4000000)))
 			  spawnCandy();
 
 		  
