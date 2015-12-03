@@ -36,6 +36,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	private long lastcandyTime;
 	private long lastBombTime;
 	public double get_candyx;
+	public double get_candyy;
 	int score;
 	private String yourScoreName;
 	BitmapFont yourBitmapFontName;
@@ -54,6 +55,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		candy.x = MathUtils.random(0, Gdx.graphics.getWidth() - candy.width); //Random between 0 and right hand side
 		candy.y = Gdx.graphics.getHeight();
 		get_candyx = candy.x; //getter for spawnBombs method
+		get_candyy = candy.y; //getter for spawnBombs method
 		candyarray.add(candy); //Add candy to candy array
 		lastcandyTime = TimeUtils.nanoTime();
 	}
@@ -67,7 +69,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		bomb.y = Gdx.graphics.getHeight();
 		lastBombTime = TimeUtils.nanoTime();
 		
-		if(Math.abs(get_candyx - bomb.x) > 150 && lastBombTime > 1000) //Only spawn bomb if not near candy
+		if(Math.abs(get_candyx - bomb.x) > 150 && TimeUtils.nanoTime() - lastcandyTime > 100050000) //Only spawn bomb if not near candy
 			bombsarray.add(bomb); //Add bomb to bomb array
 		
 		
@@ -90,7 +92,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		
 		//Instatiate hippo 'rectangle'
 		hippo = new Rectangle();
-		hippo.width = (int) (Gdx.graphics.getWidth() * hippopicture.getWidth() /480.0);
+		hippo.width = (int) (Gdx.graphics.getWidth() * hippopicture.getWidth() /480);
 		hippo.height = Gdx.graphics.getHeight() * hippopicture.getHeight() /800;
 		hippo.x = Gdx.graphics.getWidth()/2 - hippo.width / 2;
 		hippo.y = 0;
@@ -140,7 +142,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	  spawnBombs();
 	     
 	     //Creates new candy after a certain amount of time
-		  if(TimeUtils.nanoTime() - lastcandyTime > (500000000 - (score * 4000000)))
+		  if(TimeUtils.nanoTime() - lastcandyTime > (500000000 - (score * 3000000)))
 			  spawnCandy();
 
 		  
@@ -207,12 +209,9 @@ public class MyGdxGame extends ApplicationAdapter {
 			  update();
 
 		      //Text Score
-		      String s = "frames: " + Gdx.graphics.getFramesPerSecond();
 		      batch.begin(); 
 		      yourBitmapFontName.setColor(1.0f, 0, 0, 1.0f);
 		      yourBitmapFontName.draw(batch, yourScoreName, 25, 100); 
-		      yourBitmapFontName.draw(batch, s, 25, 200); 
-		      
 		      batch.end();
 		      
 		      //Render hippo
