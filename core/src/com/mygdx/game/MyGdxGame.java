@@ -25,13 +25,16 @@ import com.badlogic.gdx.Gdx;
 
 public class MyGdxGame extends ApplicationAdapter {
 
-	private Texture rockpicture;
-	private Texture skierpicture;
+	private Texture candypicture;
+	private Texture hippopicture;
+	private Texture bombpicture;
 	private OrthographicCamera camera; //Camera
 	private SpriteBatch batch; //Sprites
-	private Rectangle skier;
-	private Array<Rectangle> rocksarray;
-	private long lastRockTime;
+	private Rectangle hippo;
+	private Array<Rectangle> candyarray;
+	private Array<Rectangle> bombsarray;
+	private long lastcandyTime;
+	private long lastBombTime;
 	int score;
 	private String yourScoreName;
 	BitmapFont yourBitmapFontName;
@@ -42,15 +45,26 @@ public class MyGdxGame extends ApplicationAdapter {
 	static int GAME_STATE = 1;
 	static int END_STATE = 2;
 	
-	private void spawnRocks()
+	private void spawncandys()
 	{
-		Rectangle rock = new Rectangle();
-		rock.width = rockpicture.getWidth();
-		rock.height = rockpicture.getHeight();
-		rock.x = MathUtils.random(0, Gdx.graphics.getWidth() - rock.width); //Random between 0 and right hand side
-		rock.y = Gdx.graphics.getHeight();
-		rocksarray.add(rock); //Add rock to rock array
-		lastRockTime = TimeUtils.nanoTime();
+		Rectangle candy = new Rectangle();
+		candy.width = candypicture.getWidth();
+		candy.height = candypicture.getHeight();
+		candy.x = MathUtils.random(0, Gdx.graphics.getWidth() - candy.width); //Random between 0 and right hand side
+		candy.y = Gdx.graphics.getHeight();
+		candyarray.add(candy); //Add candy to candy array
+		lastcandyTime = TimeUtils.nanoTime();
+	}
+	
+	private void spawnBombs()
+	{
+		Rectangle bomb = new Rectangle();
+		bomb.width = bombpicture.getWidth();
+		bomb.height = candypicture.getHeight();
+		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width); //Random between 0 and right hand side
+		bomb.y = Gdx.graphics.getHeight();
+		bombsarray.add(bomb); //Add bomb to bomb array
+		lastBombTime = TimeUtils.nanoTime();
 	}
 	
 	@Override
@@ -58,8 +72,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	{
 		
 		//Sprites here
-		rockpicture  = new Texture(Gdx.files.internal("candy.png"));
-		skierpicture = new Texture(Gdx.files.internal("hippo.png"));
+		candypicture  = new Texture(Gdx.files.internal("candy.png"));
+		hippopicture = new Texture(Gdx.files.internal("hippo.png"));
+		bombpicture = new Texture(Gdx.files.internal("bomb.png"));
 		
 		
 		//Camera stuff here
@@ -67,17 +82,20 @@ public class MyGdxGame extends ApplicationAdapter {
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); //Set camera. False means y points up
 		batch = new SpriteBatch(); //Helper class to draw images
 		
-		//Instatiate skier 'rectangle'
-		skier = new Rectangle();
-		skier.width = (int) (Gdx.graphics.getWidth() * 187 /480.0);
-		skier.height = Gdx.graphics.getHeight() * 200 /800;
-		skier.x = Gdx.graphics.getWidth()/2 - skier.width / 2;
-		skier.y = 0;
+		//Instatiate hippo 'rectangle'
+		hippo = new Rectangle();
+		hippo.width = (int) (Gdx.graphics.getWidth() * 187 /480.0);
+		hippo.height = Gdx.graphics.getHeight() * 200 /800;
+		hippo.x = Gdx.graphics.getWidth()/2 - hippo.width / 2;
+		hippo.y = 0;
 		
+		//Instatiate candys
+		candyarray = new Array<Rectangle>();
+		spawncandys();
 		
-		//Instatiate rocks
-		rocksarray = new Array<Rectangle>();
-		spawnRocks();
+		//Instatiate bombs
+		bombsarray = new Array<Rectangle>();
+		spawnBombs();
 		
 		//Score
 		score = 0;
@@ -96,87 +114,113 @@ public class MyGdxGame extends ApplicationAdapter {
 	         Vector3 touchPos = new Vector3();
 	         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 	         camera.unproject(touchPos);
-	         if(!personheld && skier.contains(touchPos.x, touchPos.y)) //If rectangle for person contains finger touch, the person is held
+	         if(!personheld && hippo.contains(touchPos.x, touchPos.y)) //If rectangle for person contains finger touch, the person is held
 		         personheld = true;
 	        	 
 	         if(personheld)
-	        	 skier.x = touchPos.x - skier.width /2; //Adding on change in mouse position
+	        	 hippo.x = touchPos.x - hippo.width /2; //Adding on change in mouse position
 	     }
 	     else
 	      personheld = false;
 	     
-	     if(skier.x < 0) //Doesn't let person go left past bound
-	    	 skier.x = 0;
+	     if(hippo.x < 0) //Doesn't let person go left past bound
+	    	 hippo.x = 0;
 	     
-	     if(skier.x + skier.getWidth() > Gdx.graphics.getWidth()) //Doesn't let person go right past bound
-	    	 skier.x = Gdx.graphics.getWidth() - skier.getWidth();
+	     if(hippo.x + hippo.getWidth() > Gdx.graphics.getWidth()) //Doesn't let person go right past bound
+	    	 hippo.x = Gdx.graphics.getWidth() - hippo.getWidth();
 	     
-	     //Creates new rock after a certain amount of time
+	     //Creates new bomb after time
+	     if(TimeUtils.nanoTime() - lastBombTime > 700000000)
+	    	  spawnBombs();
+	     
+	     
+	     //Creates new candy after a certain amount of time
 	      if(score < 10)
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 500000000)
-		    	  spawnRocks();
+		      if(TimeUtils.nanoTime() - lastcandyTime > 500000000)
+		    	  spawncandys();
 	      }
 	      else if(score >= 10 && score < 30)
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 400050000)
-		    	  spawnRocks();
+		      if(TimeUtils.nanoTime() - lastcandyTime > 400050000)
+		    	  spawncandys();
 	      }
 	      
 	      else if(score >= 30 && score < 50)
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 400000000)
-		    	  spawnRocks();
+		      if(TimeUtils.nanoTime() - lastcandyTime > 400000000)
+		    	  spawncandys();
 	      }
 	      
 	      else if(score >= 50 && score < 70)
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 400000000)
-		    	  spawnRocks();
+		      if(TimeUtils.nanoTime() - lastcandyTime > 400000000)
+		    	  spawncandys();
 	      }
 	      
 	      else if(score >= 70 && score < 90)
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 300000000)
-		    	  spawnRocks();
+		      if(TimeUtils.nanoTime() - lastcandyTime > 300000000)
+		    	  spawncandys();
 	      }
 	      
 	      else if(score >= 90 && score < 110)
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 200050000)
-		    	  spawnRocks();
+		      if(TimeUtils.nanoTime() - lastcandyTime > 200050000)
+		    	  spawncandys();
 	      }
 	      
 	      else if(score >= 110 && score < 130)
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 200000000)
-		    	  spawnRocks();
+		      if(TimeUtils.nanoTime() - lastcandyTime > 200000000)
+		    	  spawncandys();
 	      }
 	      else 
 	      {
-		      if(TimeUtils.nanoTime() - lastRockTime > 100000000)
-		    	  spawnRocks();
+		      if(TimeUtils.nanoTime() - lastcandyTime > 100000000)
+		    	  spawncandys();
 	      }
 	      
+	      //Iterate through bomb array
+	      Iterator<Rectangle> iterbomb = bombsarray.iterator();
+	      while(iterbomb.hasNext())
+	      {
+	    	 Rectangle bomb = iterbomb.next();
+	    	 
+	    	 if(bomb.y +64 < 0) //When it leaves screen remove candy
+			   	{
+			   		 iterbomb.remove();  
+			   	}
+			   	
+	    	bomb.y = bomb.y - (400* Gdx.graphics.getDeltaTime()); //Move 400 pixels/unit
+		    
+	    	if(!bomb.overlaps(hippo)) //If bomb does NOT hit hippo
+		    {
+		    	iterbomb.remove();
+		    	score++;
+		    	yourScoreName = "Score: " + score; 
+		    }
+	      }
 	      
-	      //Iternate through rock array
-	      Iterator<Rectangle> iter = rocksarray.iterator();
+		    
+		   //Iterate through candy array
+	      Iterator<Rectangle> iter = candyarray.iterator();
 	      while(iter.hasNext())
 	      {
-	    	 Rectangle rock = iter.next();
+	    	 Rectangle candy = iter.next();
 	    	 
-	    	 if(rock.y +64 < 0) //When it leaves screen remove rock
+	    	 if(candy.y +64 < 0) //When it leaves screen remove candy
 			   	{
 			   		 iter.remove();  
 			   		 state = END_STATE;
 			   	}
 			   	
-	    	//These if else statements change speed of rocks as your score goes up
+	    	//These if else statements change speed of candys as your score goes up
 	    	if(score < 10)
 	    	{
 		    	
-		    	rock.y = rock.y - (400* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
-		    	if(rock.overlaps(skier)) 
+		    	candy.y = candy.y - (400* Gdx.graphics.getDeltaTime()); //Move 400 pixels/unit
+		    	if(candy.overlaps(hippo)) 
 		    	{
 		    		iter.remove();
 		    		score++;
@@ -187,8 +231,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	else if(score >= 10 && score < 30)
 	    	{
 		    	
-		    	rock.y = rock.y - (600* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
-		    	if(rock.overlaps(skier)) 
+		    	candy.y = candy.y - (600* Gdx.graphics.getDeltaTime()); 
+		    	if(candy.overlaps(hippo)) 
 		    	{
 		    		iter.remove();
 		    		score++;
@@ -199,9 +243,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	else if(score >= 30 && score < 50)
 		    {
 			    
-			   	rock.y = rock.y - (800* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
+			   	candy.y = candy.y - (800* Gdx.graphics.getDeltaTime()); 
 
-		    	if(rock.overlaps(skier)) 
+		    	if(candy.overlaps(hippo)) 
 		    	{
 		    		iter.remove();
 			    	score++;
@@ -212,9 +256,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	else if(score >= 50 && score < 70)
 		    {
 			   
-			   	rock.y = rock.y - (900* Gdx.graphics.getDeltaTime()); //Move 200 pixels/unit
+			   	candy.y = candy.y - (900* Gdx.graphics.getDeltaTime()); 
 			   	
-		    	if(rock.overlaps(skier)) 
+		    	if(candy.overlaps(hippo)) 
 		    	{
 		    		iter.remove();
 			    	score++;
@@ -224,9 +268,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	    	
 	    	else 
 		    {
-			   	rock.y = rock.y - (1000* Gdx.graphics.getDeltaTime()); //Move 1000 pixels/unit
+			   	candy.y = candy.y - (1000* Gdx.graphics.getDeltaTime()); //Move 1000 pixels/unit
 			   	
-		    	if(rock.overlaps(skier)) 
+		    	if(candy.overlaps(hippo)) 
 		    	{
 		    		iter.remove();
 			    	score++;
@@ -263,17 +307,25 @@ public class MyGdxGame extends ApplicationAdapter {
 		      
 		      batch.end();
 		      
-		      //Render skier
+		      //Render hippo
 		      batch.setProjectionMatrix(camera.combined);
 		      batch.begin();
-		      batch.draw(skierpicture, skier.x, skier.y, Gdx.graphics.getWidth() * skierpicture.getWidth() /480, Gdx.graphics.getHeight() * skierpicture.getHeight() /800);
+		      batch.draw(hippopicture, hippo.x, hippo.y, Gdx.graphics.getWidth() * hippopicture.getWidth() /480, Gdx.graphics.getHeight() * hippopicture.getHeight() /800);
 		      batch.end();
 		      
-		      //Render rocks
+		      //Render candy
 		      batch.begin();
 		      
-		      for(Rectangle rock: rocksarray) {
-			      batch.draw(rockpicture, rock.x, rock.y, Gdx.graphics.getWidth() * rockpicture.getWidth() /480, Gdx.graphics.getHeight() * rockpicture.getHeight() /800);
+		      for(Rectangle candy: candyarray) {
+			      batch.draw(candypicture, candy.x, candy.y, Gdx.graphics.getWidth() * candypicture.getWidth() /480, Gdx.graphics.getHeight() * candypicture.getHeight() /800);
+		      }
+		      batch.end();
+		      
+		      //Render bombs
+		      batch.begin();
+		      
+		      for(Rectangle bomb: bombsarray) {
+			      batch.draw(candypicture, bomb.x, bomb.y, Gdx.graphics.getWidth() * bombpicture.getWidth() /480, Gdx.graphics.getHeight() * bombpicture.getHeight() /800);
 		      }
 		      batch.end();
 		  }
@@ -294,8 +346,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	 @Override
 	   public void dispose() {
 	      // dispose of all the native resources
-	      skierpicture.dispose();
-	      rockpicture.dispose();
+	      hippopicture.dispose();
+	      candypicture.dispose();
+	      bombpicture.dispose();
 	      batch.dispose();
 	   }
 
