@@ -39,13 +39,13 @@ public class MyGdxGame extends ApplicationAdapter {
 	private String yourScoreName;
 	BitmapFont yourBitmapFontName;
 	
-	private boolean personheld;
+	private boolean hippoheld;
 	private int state = 1;
 	static int MENU_STATE = 0;
 	static int GAME_STATE = 1;
 	static int END_STATE = 2;
 	
-	private void spawncandys()
+	private void spawnCandy()
 	{
 		Rectangle candy = new Rectangle();
 		candy.width = candypicture.getWidth();
@@ -60,7 +60,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	{
 		Rectangle bomb = new Rectangle();
 		bomb.width = bombpicture.getWidth();
-		bomb.height = candypicture.getHeight();
+		bomb.height = bombpicture.getHeight();
 		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width); //Random between 0 and right hand side
 		bomb.y = Gdx.graphics.getHeight();
 		bombsarray.add(bomb); //Add bomb to bomb array
@@ -84,14 +84,14 @@ public class MyGdxGame extends ApplicationAdapter {
 		
 		//Instatiate hippo 'rectangle'
 		hippo = new Rectangle();
-		hippo.width = (int) (Gdx.graphics.getWidth() * 187 /480.0);
-		hippo.height = Gdx.graphics.getHeight() * 200 /800;
+		hippo.width = (int) (Gdx.graphics.getWidth() * hippopicture.getWidth() /480.0);
+		hippo.height = Gdx.graphics.getHeight() * hippopicture.getHeight() /800;
 		hippo.x = Gdx.graphics.getWidth()/2 - hippo.width / 2;
 		hippo.y = 0;
 		
-		//Instatiate candys
+		//Instatiate candy
 		candyarray = new Array<Rectangle>();
-		spawncandys();
+		spawnCandy();
 		
 		//Instatiate bombs
 		bombsarray = new Array<Rectangle>();
@@ -114,96 +114,94 @@ public class MyGdxGame extends ApplicationAdapter {
 	         Vector3 touchPos = new Vector3();
 	         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 	         camera.unproject(touchPos);
-	         if(!personheld && hippo.contains(touchPos.x, touchPos.y)) //If rectangle for person contains finger touch, the person is held
-		         personheld = true;
+	         if(!hippoheld && hippo.contains(touchPos.x, touchPos.y)) //If rectangle for hippo contains finger touch, the hippo is held
+		         hippoheld = true;
 	        	 
-	         if(personheld)
+	         if(hippoheld)
 	        	 hippo.x = touchPos.x - hippo.width /2; //Adding on change in mouse position
 	     }
 	     else
-	      personheld = false;
+	      hippoheld = false;
 	     
-	     if(hippo.x < 0) //Doesn't let person go left past bound
+	     if(hippo.x < 0) //Doesn't let hippo go left past bound
 	    	 hippo.x = 0;
 	     
-	     if(hippo.x + hippo.getWidth() > Gdx.graphics.getWidth()) //Doesn't let person go right past bound
+	     if(hippo.x + hippo.getWidth() > Gdx.graphics.getWidth()) //Doesn't let hippo go right past bound
 	    	 hippo.x = Gdx.graphics.getWidth() - hippo.getWidth();
 	     
 	     //Creates new bomb after time
-	     if(TimeUtils.nanoTime() - lastBombTime > 700000000)
+	     if((TimeUtils.nanoTime() - lastBombTime)/2 > 1000000000)
 	    	  spawnBombs();
 	     
-	     
 	     //Creates new candy after a certain amount of time
-	      if(score < 10)
-	      {
-		      if(TimeUtils.nanoTime() - lastcandyTime > 500000000)
-		    	  spawncandys();
-	      }
+		  if(TimeUtils.nanoTime() - lastcandyTime > 500000000)
+			  spawnCandy();
+	      
+	      /*
 	      else if(score >= 10 && score < 30)
 	      {
 		      if(TimeUtils.nanoTime() - lastcandyTime > 400050000)
-		    	  spawncandys();
+		    	  spawnCandy();
 	      }
 	      
 	      else if(score >= 30 && score < 50)
 	      {
 		      if(TimeUtils.nanoTime() - lastcandyTime > 400000000)
-		    	  spawncandys();
+		    	  spawnCandy();
 	      }
 	      
 	      else if(score >= 50 && score < 70)
 	      {
 		      if(TimeUtils.nanoTime() - lastcandyTime > 400000000)
-		    	  spawncandys();
+		    	  spawnCandy();
 	      }
 	      
 	      else if(score >= 70 && score < 90)
 	      {
 		      if(TimeUtils.nanoTime() - lastcandyTime > 300000000)
-		    	  spawncandys();
+		    	  spawnCandy();
 	      }
 	      
 	      else if(score >= 90 && score < 110)
 	      {
 		      if(TimeUtils.nanoTime() - lastcandyTime > 200050000)
-		    	  spawncandys();
+		    	  spawnCandy();
 	      }
 	      
 	      else if(score >= 110 && score < 130)
 	      {
 		      if(TimeUtils.nanoTime() - lastcandyTime > 200000000)
-		    	  spawncandys();
+		    	  spawnCandy();
 	      }
 	      else 
 	      {
 		      if(TimeUtils.nanoTime() - lastcandyTime > 100000000)
-		    	  spawncandys();
+		    	  spawnCandy();
 	      }
-	      
+	      */
 	      //Iterate through bomb array
 	      Iterator<Rectangle> iterbomb = bombsarray.iterator();
 	      while(iterbomb.hasNext())
 	      {
 	    	 Rectangle bomb = iterbomb.next();
 	    	 
-	    	 if(bomb.y +64 < 0) //When it leaves screen remove candy
+	    	 if(bomb.y +64 < 0) //If bomb does NOT hit hippo add point, delete
 			   	{
-			   		 iterbomb.remove();  
+			   		iterbomb.remove();  
+			   		score++;
+			    	yourScoreName = "Score: " + score; 
 			   	}
+	    	 else if (bomb.overlaps(hippo))
+	    	 {
+	    		 iterbomb.remove();  
+		   		 state = END_STATE;
+	    	 }
 			   	
-	    	bomb.y = bomb.y - (400* Gdx.graphics.getDeltaTime()); //Move 400 pixels/unit
-		    
-	    	if(!bomb.overlaps(hippo)) //If bomb does NOT hit hippo
-		    {
-		    	iterbomb.remove();
-		    	score++;
-		    	yourScoreName = "Score: " + score; 
-		    }
+	    	bomb.y = bomb.y - (700* Gdx.graphics.getDeltaTime()); //Move 700 pixels/unit
+		  
 	      }
 	      
-		    
-		   //Iterate through candy array
+		  //Iterate through candy array
 	      Iterator<Rectangle> iter = candyarray.iterator();
 	      while(iter.hasNext())
 	      {
@@ -215,19 +213,17 @@ public class MyGdxGame extends ApplicationAdapter {
 			   		 state = END_STATE;
 			   	}
 			   	
-	    	//These if else statements change speed of candys as your score goes up
-	    	if(score < 10)
-	    	{
-		    	
-		    	candy.y = candy.y - (400* Gdx.graphics.getDeltaTime()); //Move 400 pixels/unit
-		    	if(candy.overlaps(hippo)) 
-		    	{
-		    		iter.remove();
-		    		score++;
-		    		yourScoreName = "Score: " + score; 
-		    	}
-	    	}
-	    	
+	    	//These if else statements change speed of candy as your score goes up
+	    	 
+	    	 candy.y = candy.y - (700* Gdx.graphics.getDeltaTime()); //Move 700 pixels/unit
+	    	 if(candy.overlaps(hippo)) 
+		     {
+		    	iter.remove();
+		    	score++;
+		    	yourScoreName = "Score: " + score; 
+	    	 }
+	      
+	    	/*
 	    	else if(score >= 10 && score < 30)
 	    	{
 		    	
@@ -277,7 +273,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			    	yourScoreName = "Score: " + score;
 			   	}
 		    }
-	    	
+	    	*/
 	    
 	      }
 	
@@ -315,7 +311,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		      
 		      //Render candy
 		      batch.begin();
-		      
 		      for(Rectangle candy: candyarray) {
 			      batch.draw(candypicture, candy.x, candy.y, Gdx.graphics.getWidth() * candypicture.getWidth() /480, Gdx.graphics.getHeight() * candypicture.getHeight() /800);
 		      }
@@ -323,9 +318,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		      
 		      //Render bombs
 		      batch.begin();
-		      
 		      for(Rectangle bomb: bombsarray) {
-			      batch.draw(candypicture, bomb.x, bomb.y, Gdx.graphics.getWidth() * bombpicture.getWidth() /480, Gdx.graphics.getHeight() * bombpicture.getHeight() /800);
+			      batch.draw(bombpicture, bomb.x, bomb.y, Gdx.graphics.getWidth() * bombpicture.getWidth() /480, Gdx.graphics.getHeight() * bombpicture.getHeight() /800);
 		      }
 		      batch.end();
 		  }
