@@ -12,6 +12,7 @@
  * 				http://www.clipartlord.com/category/military-clip-art/bomb-clip-art/page/2/
  * 				http://yeschefgame.com/
  * 				http://content.mycutegraphics.com/graphics/food/blue-hard-candy.png
+ * 				http://tirdusoleil.com/wp-content/uploads/2014/10/soft-yellow-backgrounds.jpg
  * 				
  * 
  */
@@ -92,12 +93,12 @@ public class MyGdxGame extends ApplicationAdapter {
 	{
 		Rectangle bomb = new Rectangle();
 		bomb.width = bombpicture.getWidth();
-		bomb.height = (float) (bombpicture.getHeight() % (Gdx.graphics.getWidth() * .45));
-		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width); //Random between 0 and right hand side
+		bomb.height = bombpicture.getHeight();
+		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width)% (Gdx.graphics.getWidth()); //Random between 0 and right hand side
 		bomb.y = Gdx.graphics.getHeight();
 		lastBombTime = TimeUtils.nanoTime();
-		
-		if(Math.abs(get_candyx - bomb.x) > 150 && TimeUtils.nanoTime() - lastcandyTime > 100050000) //Only spawn bomb if not near candy
+		System.out.println(Math.abs(get_candyx - bomb.x));
+		if(Math.abs(get_candyx - bomb.x) > Gdx.graphics.getWidth()/4 && TimeUtils.nanoTime() - lastcandyTime > 100050000) //Only spawn bomb if not near candy
 			bombsarray.add(bomb); //Add bomb to bomb array
 		
 		
