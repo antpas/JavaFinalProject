@@ -1,3 +1,21 @@
+/*
+ * Anthony Pasquariello 
+ * Boston University
+ * EC327 Final Project
+ * Hungry Hippo
+ * 
+ * Sources:
+ * 		Tutorial on how to create a basic java game: https://github.com/libgdx/libgdx/wiki/A-simple-game
+ * 			This was used to help me start to understand how games are structured in java.
+ * 
+ * 		Images: http://cliparts.co/surprised-face-clip-art
+ * 				http://www.clipartlord.com/category/military-clip-art/bomb-clip-art/page/2/
+ * 				http://yeschefgame.com/
+ * 				http://content.mycutegraphics.com/graphics/food/blue-hard-candy.png
+ * 				
+ * 
+ */
+
 package com.mygdx.game;
 
 import java.util.Iterator;
@@ -13,8 +31,10 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -28,9 +48,16 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Texture candypicture;
 	private Texture hippopicture;
 	private Texture bombpicture;
+	private Texture playpicture;
+	private Texture retrypicture;
+	private Texture gameoverpicture;
+	private Texture background;
+	private Texture icon;
 	private OrthographicCamera camera; //Camera
 	private SpriteBatch batch; //Sprites
 	private Rectangle hippo;
+	private Rectangle playbutton;
+	private Rectangle retrybutton;
 	private Array<Rectangle> candyarray;
 	private Array<Rectangle> bombsarray;
 	private long lastcandyTime;
@@ -42,7 +69,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	BitmapFont yourBitmapFontName;
 	
 	private boolean hippoheld;
-	private int state = 1;
+	private int state = 0;
 	static int MENU_STATE = 0;
 	static int GAME_STATE = 1;
 	static int END_STATE = 2;
@@ -58,13 +85,14 @@ public class MyGdxGame extends ApplicationAdapter {
 		get_candyy = candy.y; //getter for spawnBombs method
 		candyarray.add(candy); //Add candy to candy array
 		lastcandyTime = TimeUtils.nanoTime();
+		
 	}
 	
 	private void spawnBombs()
 	{
 		Rectangle bomb = new Rectangle();
 		bomb.width = bombpicture.getWidth();
-		bomb.height = bombpicture.getHeight() % Gdx.graphics.getWidth();
+		bomb.height = (float) (bombpicture.getHeight() % (Gdx.graphics.getWidth() * .45));
 		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width); //Random between 0 and right hand side
 		bomb.y = Gdx.graphics.getHeight();
 		lastBombTime = TimeUtils.nanoTime();
@@ -83,27 +111,35 @@ public class MyGdxGame extends ApplicationAdapter {
 		candypicture  = new Texture(Gdx.files.internal("candy.png"));
 		hippopicture = new Texture(Gdx.files.internal("hippo.png"));
 		bombpicture = new Texture(Gdx.files.internal("bomb.png"));
-		
+		playpicture = new Texture(Gdx.files.internal("button-play.png"));
+		retrypicture = new Texture(Gdx.files.internal("restart.png"));
+		gameoverpicture = new Texture(Gdx.files.internal("hungryhippo.png"));
+		background = new Texture(Gdx.files.internal("junglebackground.jpg"));
+		icon = new Texture(Gdx.files.internal("Logo.png"));
 		
 		//Camera stuff here
 		camera = new OrthographicCamera(); //Create new camera
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); //Set camera. False means y points up
 		batch = new SpriteBatch(); //Helper class to draw images
 		
-		//Instatiate hippo 'rectangle'
+		//Instantiate hippo 'rectangle'
 		hippo = new Rectangle();
 		hippo.width = (int) (Gdx.graphics.getWidth() * hippopicture.getWidth() /480);
 		hippo.height = Gdx.graphics.getHeight() * hippopicture.getHeight() /800;
 		hippo.x = Gdx.graphics.getWidth()/2 - hippo.width / 2;
 		hippo.y = 0;
 		
-		//Instatiate candy
+		//Instantiate candy
 		candyarray = new Array<Rectangle>();
 		spawnCandy();
 		
-		//Instatiate bombs
+		//Instantiate bombs
 		bombsarray = new Array<Rectangle>();
 		spawnBombs();
+		
+		//Buttons
+		playbutton = new Rectangle();
+		retrybutton = new Rectangle();
 		
 		//Score
 		score = 0;
@@ -112,6 +148,33 @@ public class MyGdxGame extends ApplicationAdapter {
 		yourBitmapFontName.getData().scale(2);
 	
 	} 
+	public void updatebutton()
+	{
+		camera.update(); //Update camera once per frame
+		 if(Gdx.input.isTouched()) 
+	     {
+	         Vector3 touchPos2 = new Vector3();
+	         touchPos2.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+	         camera.unproject(touchPos2);
+	         if(playbutton.contains(touchPos2.x, touchPos2.y)) //If rectangle for play contains finger touch, change state
+		         state = GAME_STATE;
+
+	     }
+	}
+	
+	public void updateretry()
+	{
+		camera.update(); //Update camera once per frame
+		 if(Gdx.input.isTouched()) 
+	     {
+	         Vector3 touchPos3 = new Vector3();
+	         touchPos3.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+	         camera.unproject(touchPos3);
+	         if(retrybutton.contains(touchPos3.x, touchPos3.y)) //If rectangle for play contains finger touch, change state
+		         state = GAME_STATE;
+
+	     }
+	}
 	
 	public void update()
 	{
@@ -202,6 +265,33 @@ public class MyGdxGame extends ApplicationAdapter {
 		  
 		  if (state == MENU_STATE)
 		  {
+			  updatebutton();
+			  camera.update();
+			  batch.setProjectionMatrix(camera.combined);
+				
+			  //Draw background
+			  batch.setProjectionMatrix(camera.combined);
+			  batch.begin();
+			  batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			  batch.end();
+			  
+			  //Draw in hippo icon
+			  batch.setProjectionMatrix(camera.combined);
+			  batch.begin();
+			  batch.draw(icon, Gdx.graphics.getWidth()/2 - playbutton.width / 2, Gdx.graphics.getHeight()/2 - playbutton.height / 2, Gdx.graphics.getWidth() * icon.getWidth() /480, Gdx.graphics.getHeight() * icon.getHeight() /800);
+			  batch.end();
+			  
+			  //Render in Play Box
+			  playbutton.width = (int) (Gdx.graphics.getWidth() * playpicture.getWidth() /480);
+			  playbutton.height = Gdx.graphics.getHeight() * playpicture.getHeight() /800;
+			  playbutton.x = Gdx.graphics.getWidth()/2 - playbutton.width / 2;
+			  playbutton.y = Gdx.graphics.getHeight()/3 - playbutton.height / 2;
+				
+			  //Draw in play button
+			  batch.setProjectionMatrix(camera.combined);
+			  batch.begin();
+			  batch.draw(playpicture, playbutton.x, playbutton.y, Gdx.graphics.getWidth() * playpicture.getWidth() /480, Gdx.graphics.getHeight() * playpicture.getHeight() /800);
+			  batch.end();
 			  
 		  }
 		  
@@ -209,13 +299,19 @@ public class MyGdxGame extends ApplicationAdapter {
 		  {
 			  update();
 
+			  //Draw background
+			  batch.setProjectionMatrix(camera.combined);
+			  batch.begin();
+			  batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			  batch.end();
+			  
 		      //Text Score
 		      batch.begin(); 
 		      yourBitmapFontName.setColor(1.0f, 0, 0, 1.0f);
 		      yourBitmapFontName.draw(batch, yourScoreName, (float)(Gdx.graphics.getWidth() * .05), (float)(Gdx.graphics.getHeight() * .98)); 
 		      batch.end();
 		      
-		      //Render hippo
+		      //Render Hippo
 		      batch.setProjectionMatrix(camera.combined);
 		      batch.begin();
 		      batch.draw(hippopicture, hippo.x, hippo.y, Gdx.graphics.getWidth() * hippopicture.getWidth() /480, Gdx.graphics.getHeight() * hippopicture.getHeight() /800);
@@ -233,23 +329,47 @@ public class MyGdxGame extends ApplicationAdapter {
 		      for(Rectangle bomb: bombsarray) {
 			      batch.draw(bombpicture, bomb.x, bomb.y, Gdx.graphics.getWidth() * bombpicture.getWidth() /480, Gdx.graphics.getHeight() * bombpicture.getHeight() /800);
 		      }
-		      batch.end();
+		      batch.end();		      
+		     
 		  }
 		  
 		  else if(state == END_STATE)
 		  {
+			  updateretry();
+			  camera.update();
+			  batch.setProjectionMatrix(camera.combined);
+				
+			  //Draw background
+			  batch.setProjectionMatrix(camera.combined);
+			  batch.begin();
+			  batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			  batch.end();
+			  
+			  //Render in retry Box
+			  retrybutton.width = (int) (Gdx.graphics.getWidth() * retrypicture.getWidth() /480);
+			  retrybutton.height = Gdx.graphics.getHeight() * retrypicture.getHeight() /800;
+			  retrybutton.x = Gdx.graphics.getWidth()/2 - retrybutton.width / 2;
+			  retrybutton.y = (float) (Gdx.graphics.getHeight()/1.3 - retrybutton.height / 2);
+				
+			  //Draw in retry button
+			  batch.setProjectionMatrix(camera.combined);
+			  batch.begin();
+			  batch.draw(retrypicture, retrybutton.x, retrybutton.y, Gdx.graphics.getWidth() * retrypicture.getWidth() /480, Gdx.graphics.getHeight() * retrypicture.getHeight() /800);
+			  batch.end();
+			  
+			  //Draw game over image
+			  batch.setProjectionMatrix(camera.combined);
+			  batch.begin();
+			  batch.draw(gameoverpicture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getWidth());
+			  batch.end();
+			  
+			  //Clear the board
+			  candyarray.clear();
+			  bombsarray.clear();
+			  hippo.x = Gdx.graphics.getWidth()/2 - hippo.width / 2;
 			  score = 0;
-			  yourScoreName = "Score: " + score; 
-			  state = GAME_STATE;
-			  
-			  
-			  /*Skin uiSkin = new Skin(Gdx.files.internal("uiskin.json"));
-			  TextButton startgame = new TextButton("Start Game",uiSkin);
-			  startgame.setPosition(300, 300);
-			  startgame.setSize(300, 60);
-			  score = 0;*/
+			  yourScoreName = "Score: " + score;
 		  }
-	     
 
 	 }
 	
@@ -264,4 +384,3 @@ public class MyGdxGame extends ApplicationAdapter {
 	   }
 
 }
-
