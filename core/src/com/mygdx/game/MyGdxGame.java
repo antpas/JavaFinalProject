@@ -6,7 +6,7 @@
  * 
  * Sources:
  * 		Tutorial on how to create a basic java game: https://github.com/libgdx/libgdx/wiki/A-simple-game
- * 			This was used to help me start to understand how games are structured in java.
+ * 			This was used to help me start to understand how games are structured in java. Basic functionality was based off of this tutorial
  * 
  * 		Images: http://cliparts.co/surprised-face-clip-art
  * 				http://www.clipartlord.com/category/military-clip-art/bomb-clip-art/page/2/
@@ -56,6 +56,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	private long lastBombTime;
 	public double get_candyx;
 	public double get_candyy;
+	public double get_bombx;
 	int score;
 	public int highscore;
 	public int permhighscore;
@@ -89,6 +90,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		bomb.height = bombpicture.getHeight();
 		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width)% (Gdx.graphics.getWidth()); //Random between 0 and right hand side
 		bomb.y = Gdx.graphics.getHeight();
+		get_bombx = bomb.x;
 		lastBombTime = TimeUtils.nanoTime();
 		if(Math.abs(get_candyx - bomb.x) > Gdx.graphics.getWidth()/4 && TimeUtils.nanoTime() - lastcandyTime > 100050000) //Only spawn bomb if not near candy
 			bombsarray.add(bomb); //Add bomb to bomb array
@@ -124,7 +126,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		
 		//Instantiate candy
 		candyarray = new Array<Rectangle>();
-		spawnCandy();
 		
 		//Instantiate bombs
 		bombsarray = new Array<Rectangle>();
@@ -208,8 +209,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	     if(hippo.x + hippo.getWidth() > Gdx.graphics.getWidth()) //Doesn't let hippo go right past bound
 	    	 hippo.x = Gdx.graphics.getWidth() - hippo.getWidth();
 	     
-	     //Creates new bomb after time
-	     if((TimeUtils.nanoTime() - lastBombTime)/2 > 1000000000)
+	     //Creates new bomb if certain criteria are met
+	     if(Math.abs(get_candyx - get_bombx) > Gdx.graphics.getWidth()/4 && TimeUtils.nanoTime() - lastcandyTime > 100050000 && (TimeUtils.nanoTime() - lastBombTime)/2 > 1000000000)
 	    	  spawnBombs();
 	     
 	     //Creates new candy after a certain amount of time
@@ -395,7 +396,12 @@ public class MyGdxGame extends ApplicationAdapter {
 				  
 			  batch.end();
 			  
-
+		      if(highscore > permhighscore) //Only write if new highscore is higher then old
+		      {
+			      Preferences prefs = Gdx.app.getPreferences("highscore");
+				  prefs.putInteger("highscore", highscore);
+				  prefs.flush(); 
+		      }
 			  //Clear the board
 			  candyarray.clear();
 			  bombsarray.clear();
