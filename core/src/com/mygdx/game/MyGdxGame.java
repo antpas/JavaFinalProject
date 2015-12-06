@@ -20,29 +20,20 @@
 package com.mygdx.game;
 
 import java.util.Iterator;
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
-import javafx.scene.text.Text;
-
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
 
 public class MyGdxGame extends ApplicationAdapter {
 
@@ -66,9 +57,11 @@ public class MyGdxGame extends ApplicationAdapter {
 	public double get_candyx;
 	public double get_candyy;
 	int score;
+	public int highscore;
+	public int permhighscore;
 	private String yourScoreName;
+	private String yourHighScoreName;
 	BitmapFont yourBitmapFontName;
-	
 	private boolean hippoheld;
 	private int state = 0;
 	static int MENU_STATE = 0;
@@ -97,7 +90,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		bomb.x = MathUtils.random(0, Gdx.graphics.getWidth() - bomb.width)% (Gdx.graphics.getWidth()); //Random between 0 and right hand side
 		bomb.y = Gdx.graphics.getHeight();
 		lastBombTime = TimeUtils.nanoTime();
-		System.out.println(Math.abs(get_candyx - bomb.x));
 		if(Math.abs(get_candyx - bomb.x) > Gdx.graphics.getWidth()/4 && TimeUtils.nanoTime() - lastcandyTime > 100050000) //Only spawn bomb if not near candy
 			bombsarray.add(bomb); //Add bomb to bomb array
 		
@@ -142,12 +134,26 @@ public class MyGdxGame extends ApplicationAdapter {
 		playbutton = new Rectangle();
 		retrybutton = new Rectangle();
 		
+		//Load high score from phone
+		Preferences prefs = Gdx.app.getPreferences("highscore");
+		permhighscore = prefs.getInteger("highscore");
+		
 		//Score
 		score = 0;
+		highscore = 0;
 		yourScoreName = "Score: 0";
+		if (highscore == 0)
+		{
+			yourHighScoreName = "High Score: 0";
+		}
+		else
+		{
+			yourHighScoreName = "High Score: " + highscore;
+		}
 		yourBitmapFontName = new BitmapFont();
-		yourBitmapFontName.getData().scale(2);
-	
+		yourBitmapFontName.getData().scale(2);	
+		
+		
 	} 
 	public void updatebutton()
 	{
@@ -222,6 +228,11 @@ public class MyGdxGame extends ApplicationAdapter {
 			   		iterbomb.remove();  
 			   		score++;
 			    	yourScoreName = "Score: " + score; 
+			    	if (score > highscore)
+			    	{
+			    	    highscore = score;
+			    	    yourHighScoreName = "High Score: " + highscore;
+			    	}
 			   	}
 	    	 else if (bomb.overlaps(hippo))
 	    	 {
@@ -253,6 +264,11 @@ public class MyGdxGame extends ApplicationAdapter {
 			    	iter.remove();
 			    	score++;
 			    	yourScoreName = "Score: " + score; 
+			    	if (score > highscore)
+			    	{
+			    	    highscore = score;
+			    	    yourHighScoreName = "High Score: " + highscore;
+			    	}
 		    	 }
 	      }
 	
@@ -264,6 +280,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		  Gdx.gl.glClearColor(1, 1, 1, 1);
 		  Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); 
 		  
+			
 		  if (state == MENU_STATE)
 		  {
 			  updatebutton();
@@ -294,6 +311,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			  batch.draw(playpicture, playbutton.x, playbutton.y, Gdx.graphics.getWidth() * playpicture.getWidth() /480, Gdx.graphics.getHeight() * playpicture.getHeight() /800);
 			  batch.end();
 			  
+						  
 		  }
 		  
 		  else if(state == GAME_STATE)
@@ -364,6 +382,20 @@ public class MyGdxGame extends ApplicationAdapter {
 			  batch.draw(gameoverpicture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getWidth());
 			  batch.end();
 			  
+			  //Draw in high score
+			  batch.begin();
+			  yourBitmapFontName.setColor(1.0f, 0, 0, 1.0f);
+			  if(permhighscore > highscore)//Draw correct high score
+			  {
+				  yourHighScoreName = "High Score: " + permhighscore;
+				  yourBitmapFontName.draw(batch, yourHighScoreName, (float)(Gdx.graphics.getWidth() * .05), (float)(Gdx.graphics.getHeight() * .98)); 
+			  }
+			  else
+				  yourBitmapFontName.draw(batch, yourHighScoreName, (float)(Gdx.graphics.getWidth() * .05), (float)(Gdx.graphics.getHeight() * .98)); 
+				  
+			  batch.end();
+			  
+
 			  //Clear the board
 			  candyarray.clear();
 			  bombsarray.clear();
@@ -373,7 +405,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		  }
 
 	 }
-	
+
 	 @Override
 	   public void dispose() {
 	      // dispose of all the native resources
@@ -382,6 +414,13 @@ public class MyGdxGame extends ApplicationAdapter {
 	      bombpicture.dispose();
 	      yourBitmapFontName.dispose();
 	      batch.dispose();
+	      if(highscore > permhighscore) //Only write if new highscore is higher then old
+	      {
+		      Preferences prefs = Gdx.app.getPreferences("highscore");
+			  prefs.putInteger("highscore", highscore);
+			  prefs.flush(); 
+	      }
+
 	   }
 
 }
