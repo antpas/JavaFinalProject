@@ -13,7 +13,7 @@ This game was written using LibGDX framework. This is a popular Java framework u
 In order to learn how to program a game in Java I used this tutorial. Basic layouts and coding format were used for inspiration in my game.
   That tutorial can be found here: https://github.com/libgdx/libgdx/wiki/A-simple-game
 
-The Java file can be found in this GitHub repository, under JavaFinalProject/core/game
+The Java file can be found in this GitHub repository, under JavaFinalProject/core/src/com/mygdx/game/MyGdxGame.java
 
 Included in this repository:
   The .apk so that you can download the app and run it yourself. 
