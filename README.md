@@ -1,5 +1,8 @@
 # JavaFinalProject
 Hungry Hippo
+* Anthony Pasquariello
+* EC327 Fall 2015
+* Boston University
 
 Hungry Hippo is a game meant to pass time. It's easy to play and fun for all ages. 
 
@@ -12,11 +15,16 @@ This game was written using LibGDX framework. This is a popular Java framework u
 * Instructions for installing LibGDX are here: 
  *  https://github.com/libgdx/libgdx/wiki/Setting-up-your-Development-Environment-(Eclipse,-Intellij-IDEA,-NetBeans)
 
+# Sources
 In order to learn how to program a game in Java I used this tutorial. Basic layouts and coding format were used for inspiration in my game.
   That tutorial can be found here: https://github.com/libgdx/libgdx/wiki/A-simple-game
 
-The Java file can be found in this GitHub repository, under JavaFinalProject/core/src/com/mygdx/game/MyGdxGame.java
+# Running the game
+The Java file can be found in this GitHub repository, under JavaFinalProject/Game Files/core/src/com/mygdx/game/MyGdxGame.java
+* You only need to download the files contained within Game Files to run the game on Eclipse
+* You can also download the .APK within main repo folder to play the game on an Android phone
 
+#What's in the repo?
 Included in this repository:
 * The .apk so that you can download the app and run it yourself. 
 * ProjectTimeline.doc
