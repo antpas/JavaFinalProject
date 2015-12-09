@@ -20,7 +20,7 @@ In order to learn how to program a game in Java I used this tutorial. Basic layo
   That tutorial can be found here: https://github.com/libgdx/libgdx/wiki/A-simple-game
 
 # Running the game
-The Java file can be found in this GitHub repository, under JavaFinalProject/Game Files/core/src/com/mygdx/game/MyGdxGame.java
+The Java file can be found in this GitHub repository, under JavaFinalProject/Game_Files/core/src/com/mygdx/game/MyGdxGame.java
 * You only need to download the files contained within Game Files to run the game on Eclipse
 * You can also download the .APK within main repo folder to play the game on an Android phone
 
