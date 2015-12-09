@@ -1,6 +1,6 @@
 # JavaFinalProject
 Hungry Hippo
-* Anthony Pasquariello
+* Team 42
 * EC327 Fall 2015
 * Boston University
 
