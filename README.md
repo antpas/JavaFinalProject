@@ -27,6 +27,7 @@ The Java file can be found in this GitHub repository, under: JavaFinalProject/Ga
 #What's in the repo?
 Included in this repository:
 * The .apk so that you can download the app and run it yourself. 
+* Source code
 * ProjectTimeline.doc
 * ProjectDocumentation.doc
 * StatementOfWork.doc
