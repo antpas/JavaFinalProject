@@ -31,6 +31,7 @@ Included in this repository:
 * ProjectDocumentation.doc
 * StatementOfWork.doc
 * ProjectArchitecture.ppt
+** ProjectArchitecture.pdf (incase .ppt doesn't work)
 
 
 
